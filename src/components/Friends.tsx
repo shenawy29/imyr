@@ -38,7 +38,7 @@ export default function Friends({ currentUserFriends, currentUser }: Props) {
 	return (
 		<>
 			{userFriends?.map((friend) => (
-				<FriendBox friend={friend} currentUser={currentUser} key={friend.id} />
+				<FriendBox friend={friend} key={friend.id} />
 			))}
 		</>
 	);

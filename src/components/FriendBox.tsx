@@ -10,9 +10,10 @@ import clsx from "clsx";
 
 type Props = {
 	friend: User;
+	currentUser: User;
 };
 
-export default function FriendBox({ friend }: Props) {
+export default function FriendBox({ friend, currentUser }: Props) {
 	const [conversation, setConversation] = useState<Conversation>();
 
 	const router = useRouter();
@@ -30,14 +31,18 @@ export default function FriendBox({ friend }: Props) {
 		[friend.id, router]
 	);
 
+	
+
 	return (
 		<>
 			<Button
 				onClick={handleClick}
 				variant="outline"
 				className={clsx(
-					"flex items-center justify-between w-full h-16 border-t-0 rounded-none  ",
-					// conversation?.userIds.includes(friend.id) && "bg-zinc-800"
+					"flex items-center justify-between w-full h-16 border-t-0 rounded-none",
+					// pathName.includes(conversation?.id!)
+					// 	? "dark:bg-zinc-800 bg-zinc-100 "
+					// 	: "bg-transparent"
 				)}
 			>
 				<Avatar className="relative inline-block overflow-visible">

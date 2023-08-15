@@ -7,6 +7,10 @@ export async function POST(req: Request) {
 	try {
 		const currentUserSession = await getServerSession(authOptions);
 
+		if (!currentUserSession) {
+			return new NextResponse("Unauthorized Request", { status: 401 });
+		}
+
 		const currentUser = await prisma.user.findUnique({
 			where: {
 				email: currentUserSession?.user?.email!,
@@ -38,13 +42,6 @@ export async function POST(req: Request) {
 		});
 
 		const existingConversation = existingConversations.at(0);
-
-    if (!existingConversation?.userIds.includes(currentUser.id)) {
-			return new NextResponse(
-				"You don't have permission to view this conversation.",
-				{ status: 400 }
-			);
-		}
 
 		if (existingConversation) {
 			return NextResponse.json(existingConversation, { status: 200 });

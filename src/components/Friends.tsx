@@ -16,18 +16,22 @@ export default function Friends({ currentUserFriends, currentUser }: Props) {
 	useEffect(() => {
 		pusherClient.subscribe(currentUser.id);
 
-		const newFriendHandler = (friend: User) => {
-			setUserFriends((currentUserFriends) => [
-				...currentUserFriends,
-				friend,
-			]);
+		const newFriendHandler = (friendToAdd: User) => {
+			setUserFriends((currentUserFriends) => [...currentUserFriends, friendToAdd]);
+		};
+
+		const removeFriendHandler = (friendToRemove: User) => {
+			const newFriends = userFriends.filter((friend) => friend.id !== friendToRemove.id);
+			setUserFriends(newFriends);
 		};
 
 		pusherClient.bind("friend:new", newFriendHandler);
+		pusherClient.bind("friend:remove", removeFriendHandler);
 
 		return () => {
 			pusherClient.unsubscribe(currentUser.id);
 			pusherClient.unbind("friend:new", newFriendHandler);
+			pusherClient.unbind("friend:remove", removeFriendHandler);
 		};
 	});
 

@@ -8,6 +8,7 @@ import { Popover, PopoverContent, PopoverTrigger } from "./ui/popover";
 import FriendRequest from "./FriendRequest";
 import { useEffect, useState } from "react";
 import { pusherClient } from "@/app/libs/pusher";
+import RemoveFriendUI from "./RemoveFriendUI";
 
 type Props = {
 	dbUser: User;
@@ -15,22 +16,38 @@ type Props = {
 	userName: string;
 };
 
-export default function AvatarUI({ dbUser, friendRequestSenders, userName,}: Props) {
-	const [friendRequests, setFriendRequests] = useState<User[]>(friendRequestSenders);
+export default function AvatarUI({
+	dbUser,
+	friendRequestSenders,
+	userName,
+}: Props) {
+	const [friendRequests, setFriendRequests] =
+		useState<User[]>(friendRequestSenders);
 
 	useEffect(() => {
 		pusherClient.subscribe(dbUser!.id);
 
-		const friendRequestHandler = (friendRequest: User) => {
-			console.log(friendRequest);
-			setFriendRequests((currentFriendRequests)=>[...currentFriendRequests, friendRequest]);
+		const newFriendRequestHandler = (friendRequest: User) => {
+			setFriendRequests((currentFriendRequests) => [
+				...currentFriendRequests,
+				friendRequest,
+			]);
 		};
 
-		pusherClient.bind("friendrequest:new", friendRequestHandler);
+		const removeFriendRequestHandler = (friendRequest: User) => {
+			const newFriendRequests = friendRequests.filter(
+				(friend) => friend.id !== friendRequest.id
+			);
+			setFriendRequests(newFriendRequests);
+		};
+
+		pusherClient.bind("friendrequest:new", newFriendRequestHandler);
+		pusherClient.bind("friendrequest:remove", removeFriendRequestHandler);
 
 		return () => {
-			pusherClient.unsubscribe(dbUser!.id);
-			pusherClient.unbind("friendrequest:new", friendRequestHandler);
+			pusherClient.unsubscribe(dbUser.id);
+			pusherClient.unbind("friendrequest:new", newFriendRequestHandler);
+			pusherClient.bind("friendrequest:remove", removeFriendRequestHandler);
 		};
 	});
 
@@ -51,27 +68,24 @@ export default function AvatarUI({ dbUser, friendRequestSenders, userName,}: Pro
 				</Avatar>
 			</PopoverTrigger>
 			<PopoverContent className="p-0 space-y-7 w-[20rem]">
-				{friendRequests.length > 0 ? (
-					<div className="flex flex-col items-center h-full">
-						{friendRequests.map((sender) => (
-							<FriendRequest key={sender.id} sender={sender} />
-						))}
-						<div className="flex w-full">
-							<AddFriendUI />
-							<LogoutButton />
-						</div>
-					</div>
-				) : (
-					<div className="flex flex-col items-center w-full h-full">
+				<div className="flex flex-col items-center w-full h-full">
+					{friendRequests.length > 0 ? (
+						<>
+							{friendRequests.map((sender) => (
+								<FriendRequest key={sender.id} sender={sender} />
+							))}
+						</>
+					) : (
 						<p className="flex items-center justify-center w-full h-full py-2 text-center">
 							No friend requests currently.
 						</p>
-						<div className="flex w-full">
-							<AddFriendUI />
-							<LogoutButton />
-						</div>
+					)}
+					<div className="flex w-full">
+						<AddFriendUI />
+						<RemoveFriendUI />
+						<LogoutButton />
 					</div>
-				)}
+				</div>
 			</PopoverContent>
 		</Popover>
 	);

@@ -3,9 +3,11 @@
 import { User } from "@prisma/client";
 import { Button } from "./ui/button";
 import { Check, X } from "lucide-react";
-import { useCallback } from "react";
+import { useCallback, useEffect } from "react";
 import axios from "axios";
 import { useToast } from "./ui/use-toast";
+import { pusherClient } from "@/app/libs/pusher";
+import { useSession } from "next-auth/react";
 
 type Props = {
   sender: User;
@@ -13,7 +15,7 @@ type Props = {
 
 export default function FriendRequest({ sender }: Props) {
   const { toast } = useToast();
-  
+  const session = useSession()
 
   const handleDeny = useCallback(() => {
     axios
@@ -26,6 +28,8 @@ export default function FriendRequest({ sender }: Props) {
       .post("/api/friends/accept", { sender })
       .then(() => toast({ title: "Request accepted" }));
   }, [toast, sender]);
+
+
 
   return (
     <div className="flex items-center justify-between w-full h-full">

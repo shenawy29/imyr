@@ -7,7 +7,6 @@ import { pusherServer } from "@/app/libs/pusher";
 export async function POST(req: Request) {
 	try {
 		const { sender } = await req.json();
-		console.log(sender);
 
 		const currentUserSession = await getServerSession(authOptions);
 		if (!currentUserSession) {
@@ -48,6 +47,8 @@ export async function POST(req: Request) {
 		});
 
 		await pusherServer.trigger(dbUser.id, "friendrequest:deny", {});
+
+		await pusherServer.trigger(dbUser.id, "friendrequest:remove", sender);
 
 		return new NextResponse("Friend accepted.", {
 			status: 200,

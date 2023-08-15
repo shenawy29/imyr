@@ -77,6 +77,7 @@ export async function POST(req: Request) {
 
 		await pusherServer.trigger(dbUser.id, "friendrequest:new", requestSender);
 
+
 		return new NextResponse("Friend request sent successfully.", {status: 200,});
 	} catch (error) {
 		return new NextResponse("Something unexpected happened.", { status: 500 });

@@ -6,55 +6,66 @@ import * as z from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Button } from "@/components/ui/button";
 import {
-  Form,
-  FormControl,
-  FormDescription,
-  FormField,
-  FormItem,
-  FormLabel,
+	Form,
+	FormControl,
+	FormDescription,
+	FormField,
+	FormItem,
+	FormLabel,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-
-type Props = {};
+import { useState } from "react";
 
 export const emailValidator = z.object({
-  email: z.string().email(),
+	email: z.string().email(),
 });
 
 export default function LoginForm() {
-  const form = useForm<z.infer<typeof emailValidator>>({
-    resolver: zodResolver(emailValidator),
-    defaultValues: {
-      email: "",
-    },
-  });
+	const [isLoading, setIsLoading] = useState<boolean>();
 
-  function onSubmit(values: z.infer<typeof emailValidator>) {
-    signIn("email", { email: values.email });
-  }
+	const form = useForm<z.infer<typeof emailValidator>>({
+		resolver: zodResolver(emailValidator),
+		defaultValues: {
+			email: "",
+		},
+	});
 
-  return (
-    <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
-        <FormField
-          control={form.control}
-          name="email"
-          render={({ field }) => (
-            <FormItem className="flex flex-col">
-              <FormLabel>Email</FormLabel>
-              <FormControl>
-                <Input placeholder="you@example.com" {...field} />
-              </FormControl>
-              <FormDescription className="text-center ">
-                You can only log in using email. One on one chat!
-              </FormDescription>
-            </FormItem>
-          )}
-        />
-        <Button type="submit" variant="outline" className="w-full">
-          Submit
-        </Button>
-      </form>
-    </Form>
-  );
+	function onSubmit(values: z.infer<typeof emailValidator>) {
+    try {
+      setIsLoading(true);
+			signIn("email", { email: values.email });
+		} catch (error) {
+			throw new Error("Something wrong happened.");
+		}
+	}
+
+	return (
+		<Form {...form}>
+			<form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
+				<FormField
+					control={form.control}
+					name="email"
+					render={({ field }) => (
+						<FormItem className="flex flex-col">
+							<FormLabel>Email</FormLabel>
+							<FormControl>
+								<Input placeholder="you@example.com" {...field} />
+							</FormControl>
+							<FormDescription className="text-center ">
+								You can only log in using email. One on one chat!
+							</FormDescription>
+						</FormItem>
+					)}
+				/>
+				<Button
+					disabled={isLoading}
+					type="submit"
+					variant="outline"
+					className="w-full"
+				>
+					Submit
+				</Button>
+			</form>
+		</Form>
+	);
 }

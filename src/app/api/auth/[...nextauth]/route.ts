@@ -16,6 +16,7 @@ export const authOptions: NextAuthOptions = {
         },
       },
       from: process.env.EMAIL_FROM,
+
     }),
   ],
   secret: process.env.NEXTAUTH_SECRET,
@@ -26,22 +27,6 @@ export const authOptions: NextAuthOptions = {
     signIn: "/",
   },
   callbacks: {
-    // async jwt({ token }) {
-    // 	const tokenEmail = token.email || "";
-    // 	try {
-    // 		console.log(token);
-
-    // 	} catch (error) {
-    // 		console.log(error);
-    // 	}
-
-    // 	return token;
-    // },
-
-    // async session({ session, token }) {
-    // 	return session;
-    // },
-
     async redirect() {
       return "/dashboard";
     },
